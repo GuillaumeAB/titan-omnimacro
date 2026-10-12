@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OmniMacro Fermi - 5-Year Multi-Asset Geopolitical Engine</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              900: '#1e3a8a'
+            },
+            surface: {
+              800: '#131b2e',
+              850: '#0f172a',
+              900: '#0b0f19',
+              950: '#060911'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0b0f19;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+    }
+  </style>
+</head>
+<body class="bg-surface-950 text-slate-100 min-h-screen antialiased flex flex-col">
+
+  <!-- Top Navigation & Live Telemetry Bar -->
+  <header class="border-b border-slate-800 bg-surface-900/90 backdrop-blur sticky top-0 z-50 px-6 py-3">
+    <div class="max-w-[1700px] mx-auto flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-blue-600 via-indigo-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-blue-500/20">
+          <i data-lucide="activity" class="w-5 h-5 text-white"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-bold text-lg text-white tracking-tight">TITAN OMNIMACRO</h1>
+            <span class="text-xs px-2 py-0.5 rounded-full font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> LIVE 2026-2031
+            </span>
+          </div>
+          <p class="text-xs text-slate-400">Institutional Geopolitical Transmission & Bottom-Up Constituent Projection Engine</p>
+        </div>
+      </div>
+
+      <!-- Live Macro Indicators Strip -->
+      <div class="flex items-center gap-4 text-xs mono">
+        <div class="bg-surface-850 px-3 py-1.5 rounded-md border border-slate-800 flex items-center gap-2">
+          <span class="text-slate-400">US 10Y:</span>
+          <span class="text-amber-400 font-bold" id="tele-yield">4.10%</span>
+        </div>
+        <div class="bg-surface-850 px-3 py-1.5 rounded-md border border-slate-800 flex items-center gap-2">
+          <span class="text-slate-400">Brent Oil:</span>
+          <span class="text-cyan-400 font-bold" id="tele-oil">$77.50</span>
+        </div>
+        <div class="bg-surface-850 px-3 py-1.5 rounded-md border border-slate-800 flex items-center gap-2">
+          <span class="text-slate-400">GPR Risk:</span>
+          <span class="text-rose-400 font-bold" id="tele-gpr">120 pts</span>
+        </div>
+        <div class="bg-surface-850 px-3 py-1.5 rounded-md border border-slate-800 flex items-center gap-2">
+          <span class="text-slate-400">Fed Terminal:</span>
+          <span class="text-emerald-400 font-bold" id="tele-fed">3.75%</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Layout -->
+  <main class="max-w-[1700px] mx-auto p-6 flex-1 w-full space-y-6">
+
+    <!-- KPI Metric Cards for the 4 Indices -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="kpi-cards">
+      <!-- S&P 500 Card -->
+      <div class="bg-surface-900 border border-slate-800 rounded-xl p-4 relative overflow-hidden shadow-lg shadow-black/40">
+        <div class="flex justify-between items-start mb-2">
+          <div>
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">S&P 500 (SPX)</span>
+            <div class="text-2xl font-bold mono mt-0.5 text-white" id="kpi-spx-target">--</div>
+          </div>
+          <span class="text-xs px-2 py-0.5 rounded font-mono font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20" id="kpi-spx-ret">--</span>
+        </div>
+        <div class="flex justify-between text-xs text-slate-400 mono pt-2 border-t border-slate-800/80">
+          <span>Base: <b class="text-slate-200">5,850.0</b></span>
+          <span>5Y CAGR: <b class="text-emerald-400" id="kpi-spx-cagr">--</b></span>
+          <span>Max DD: <b class="text-rose-400" id="kpi-spx-dd">--</b></span>
+        </div>
+      </div>
+
+      <!-- Nasdaq 100 Card -->
+      <div class="bg-surface-900 border border-slate-800 rounded-xl p-4 relative overflow-hidden shadow-lg shadow-black/40">
+        <div class="flex justify-between items-start mb-2">
+          <div>
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Nasdaq 100 (NDX)</span>
+            <div class="text-2xl font-bold mono mt-0.5 text-white" id="kpi-ndx-target">--</div>
+          </div>
+          <span class="text-xs px-2 py-0.5 rounded font-mono font-medium bg-indigo-500/10 text-indigo-400 border border-indigo-500/20" id="kpi-ndx-ret">--</span>
+        </div>
+        <div class="flex justify-between text-xs text-slate-400 mono pt-2 border-t border-slate-800/80">
+          <span>Base: <b class="text-slate-200">20,450.0</b></span>
+          <span>5Y CAGR: <b class="text-emerald-400" id="kpi-ndx-cagr">--</b></span>
+          <span>Max DD: <b class="text-rose-400" id="kpi-ndx-dd">--</b></span>
+        </div>
+      </div>
+
+      <!-- MSCI World Card -->
+      <div class="bg-surface-900 border border-slate-800 rounded-xl p-4 relative overflow-hidden shadow-lg shadow-black/40">
+        <div class="flex justify-between items-start mb-2">
+          <div>
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">MSCI World (URTH)</span>
+            <div class="text-2xl font-bold mono mt-0.5 text-white" id="kpi-msci-target">--</div>
+          </div>
+          <span class="text-xs px-2 py-0.5 rounded font-mono font-medium bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" id="kpi-msci-ret">--</span>
+        </div>
+        <div class="flex justify-between text-xs text-slate-400 mono pt-2 border-t border-slate-800/80">
+          <span>Base: <b class="text-slate-200">3,720.0</b></span>
+          <span>5Y CAGR: <b class="text-emerald-400" id="kpi-msci-cagr">--</b></span>
+          <span>Max DD: <b class="text-rose-400" id="kpi-msci-dd">--</b></span>
+        </div>
+      </div>
+
+      <!-- STOXX Europe 600 Card -->
+      <div class="bg-surface-900 border border-slate-800 rounded-xl p-4 relative overflow-hidden shadow-lg shadow-black/40">
+        <div class="flex justify-between items-start mb-2">
+          <div>
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">STOXX Europe 600 (SXXP)</span>
+            <div class="text-2xl font-bold mono mt-0.5 text-white" id="kpi-stoxx-target">--</div>
+          </div>
+          <span class="text-xs px-2 py-0.5 rounded font-mono font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20" id="kpi-stoxx-ret">--</span>
+        </div>
+        <div class="flex justify-between text-xs text-slate-400 mono pt-2 border-t border-slate-800/80">
+          <span>Base: <b class="text-slate-200">522.0</b></span>
+          <span>5Y CAGR: <b class="text-emerald-400" id="kpi-stoxx-cagr">--</b></span>
+          <span>Max DD: <b class="text-rose-400" id="kpi-stoxx-dd">--</b></span>
+        </div>
+      </div>
+    <!-- BANDEAU SCÉNARIO CENTRAL & POLITIQUE DE RÉÉQUILIBRAGE (ZERO-EFFORT ACTIONABLE SUMMARY) -->
+    <div class="bg-gradient-to-r from-slate-900 via-surface-900 to-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden space-y-6">
+      <div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-800">
+        <div>
+          <div class="flex items-center gap-3">
+            <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-blue-500/10 text-blue-400 border border-blue-500/30 flex items-center gap-1.5">
+              <i data-lucide="compass" class="w-3.5 h-3.5"></i> Scénario Central (Consensus / Soft-Landing)
+            </span>
+            <span class="text-xs text-slate-400 font-mono">Probabilité estimée : 65% - 70%</span>
+          </div>
+          <h2 class="text-xl font-bold text-white mt-1">Synthèse Opérationnelle & Politique de Rééquilibrage</h2>
+          <p class="text-xs text-slate-400">Pas besoin d'ajuster des dizaines de réglages : voici la trajectoire macroéconomique modale et la consigne de gestion de votre portefeuille.</p>
+        </div>
+        
+        <!-- VERDICT RÉÉQUILIBRAGE IMMÉDIAT -->
+        <div class="flex items-center gap-3 bg-emerald-950/60 border border-emerald-500/40 px-5 py-3 rounded-xl shadow-lg shadow-emerald-950/30">
+          <div class="w-10 h-10 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
+            <i data-lucide="shield-check" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <div class="text-xs font-bold uppercase tracking-wide text-emerald-400">Consigne Rebalancing Immédiate</div>
+            <div class="text-sm font-extrabold text-white">NE PAS RÉÉQUILIBRER AUJOURD'HUI</div>
+            <div class="text-[11px] text-emerald-300/80 font-mono">Toutes les lignes sont dans les bandes de tolérance 5/25</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3 Colonnes : 1. Piliers Macro, 2. Projections d'indices, 3. Corridors de Rebalancing -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- 1. Les 4 Piliers du Scénario Central -->
+        <div class="bg-surface-850/80 rounded-xl p-4 border border-slate-800/80 space-y-3">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
+            <i data-lucide="layers" class="w-4 h-4 text-cyan-400"></i> Les 4 Piliers Macroéconomiques
+          </h3>
+          <ul class="text-xs space-y-2.5 text-slate-300">
+            <li class="flex items-start gap-2">
+              <span class="text-cyan-400 font-bold">•</span>
+              <div><b class="text-white">Croissance Stable :</b> PIB US ~2.0% / Eurozone ~1.2%. Pas de récession globale, consommation résiliente.</div>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-cyan-400 font-bold">•</span>
+              <div><b class="text-white">Taux d'Intérêt Normalisés :</b> Taux US 10Y stabilisé entre 3.8% et 4.1%. Fin des chocs obligataires majeurs.</div>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-cyan-400 font-bold">•</span>
+              <div><b class="text-white">Bénéfices d'Entreprises (EPS) :</b> +9.5%/an sur le S&P 500, +6.0% en Europe. Valorisation assise sur les flux de cash réels.</div>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-cyan-400 font-bold">•</span>
+              <div><b class="text-white">Géopolitique Dissuasive :</b> Tensions chroniques contenues. Pétrole Brent oscillant entre $72 et $82 sans rupture d'approvisionnement.</div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- 2. Projections Chiffrées Indices (1Y, 3Y, 5Y) -->
+        <div class="bg-surface-850/80 rounded-xl p-4 border border-slate-800/80 space-y-3">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
+            <i data-lucide="trending-up" class="w-4 h-4 text-emerald-400"></i> Projections Scénario Central
+          </h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-xs text-left font-mono">
+              <thead>
+                <tr class="text-slate-400 border-b border-slate-800 pb-1">
+                  <th class="py-1">Actif / ETF</th>
+                  <th class="py-1 text-right">1 An</th>
+                  <th class="py-1 text-right">3 Ans</th>
+                  <th class="py-1 text-right text-emerald-400">5 Ans</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-800/60 text-slate-200">
+                <tr><td class="py-1 font-sans">S&P 500 (SPX)</td><td class="text-right">+10.2%</td><td class="text-right">+34.5%</td><td class="text-right font-bold text-emerald-400">+62.8%</td></tr>
+                <tr><td class="py-1 font-sans">Nasdaq-100 (NDX)</td><td class="text-right">+12.4%</td><td class="text-right">+43.2%</td><td class="text-right font-bold text-emerald-400">+82.5%</td></tr>
+                <tr><td class="py-1 font-sans">MSCI World (URTH)</td><td class="text-right">+9.1%</td><td class="text-right">+30.2%</td><td class="text-right font-bold text-emerald-400">+54.6%</td></tr>
+                <tr><td class="py-1 font-sans">STOXX 600 (Europe)</td><td class="text-right">+8.4%</td><td class="text-right">+27.8%</td><td class="text-right font-bold text-emerald-400">+49.8%</td></tr>
+                <tr><td class="py-1 font-sans">Émergents (EEM)</td><td class="text-right">+9.5%</td><td class="text-right">+31.5%</td><td class="text-right font-bold text-emerald-400">+56.2%</td></tr>
+                <tr><td class="py-1 font-sans">Moyen-Orient (KSA/UAE)</td><td class="text-right">+9.8%</td><td class="text-right">+32.8%</td><td class="text-right font-bold text-emerald-400">+58.0%</td></tr>
+                <tr><td class="py-1 font-sans">Europe de l'Est (EPOL)</td><td class="text-right">+11.2%</td><td class="text-right">+38.0%</td><td class="text-right font-bold text-emerald-400">+69.5%</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 3. Règle et Bandes de Rebalancing (5/25 Swensen) -->
+        <div class="bg-surface-850/80 rounded-xl p-4 border border-slate-800/80 space-y-3">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
+            <i data-lucide="scale" class="w-4 h-4 text-amber-400"></i> Règle de Rééquilibrage (5/25)
+          </h3>
+          <div class="text-xs text-slate-300 space-y-2">
+            <p><b class="text-amber-300">Quand rééquilibrer ?</b> Uniquement si une ligne dépasse sa bande de tolérance [Seuil Min - Seuil Max]. Jamais au calendrier fixe.</p>
+            <div class="bg-surface-900 rounded-lg p-2.5 border border-slate-800 space-y-1.5 text-[11px] font-mono">
+              <div class="flex justify-between text-slate-400"><span>Actif (Cible)</span><span>Bande Tolérance</span><span>Statut</span></div>
+              <div class="flex justify-between text-slate-200"><span>S&P 500 (50%)</span><span>[45.0% - 55.0%]</span><span class="text-emerald-400 font-bold">OK (52.1%)</span></div>
+              <div class="flex justify-between text-slate-200"><span>Nasdaq-100 (20%)</span><span>[15.0% - 25.0%]</span><span class="text-emerald-400 font-bold">OK (21.4%)</span></div>
+              <div class="flex justify-between text-slate-200"><span>Europe STOXX (15%)</span><span>[11.2% - 18.8%]</span><span class="text-emerald-400 font-bold">OK (14.2%)</span></div>
+              <div class="flex justify-between text-slate-200"><span>Émergents (5%)</span><span>[3.8% - 6.2%]</span><span class="text-emerald-400 font-bold">OK (4.7%)</span></div>
+              <div class="flex justify-between text-slate-200"><span>Moyen-Orient (4%)</span><span>[3.0% - 5.0%]</span><span class="text-emerald-400 font-bold">OK (4.0%)</span></div>
+              <div class="flex justify-between text-slate-200"><span>Europe Est (4%)</span><span>[3.0% - 5.0%]</span><span class="text-emerald-400 font-bold">OK (4.0%)</span></div>
+            </div>
+            <p class="text-[11px] text-slate-400"><b class="text-emerald-400">Astuce Zéro Impôt (DCA) :</b> Au lieu de vendre des parts gagnantes, envoyez vos prochains apports d'épargne vers la ligne la plus en retard.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Middle Controls & Simulation Architecture -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+
+      <!-- Left Console: Geopolitical Scenario Configurator & Stress Sliders (4 cols) -->
+      <div class="lg:col-span-4 bg-surface-900 border border-slate-800 rounded-xl p-5 space-y-5">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+          <div class="flex items-center gap-2">
+            <i data-lucide="sliders" class="w-4 h-4 text-blue-400"></i>
+            <h2 class="font-bold text-sm text-white uppercase tracking-wider">Scenario & Stress Matrix</h2>
+          </div>
+          <span class="text-xs text-slate-400 mono">60-Mo Stochastic</span>
+        </div>
+
+        <!-- Scenario Mode Select -->
+        <div class="space-y-1.5">
+          <label class="text-xs font-medium text-slate-300">Macro / Geopolitical Scenario</label>
+          <select id="scenario-selector" class="w-full bg-surface-850 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+            <option value="composite_polymarket" selected>🎲 Polymarket & Kalshi Betting Odds Ensemble (Live)</option>
+            <option value="ai_hyper_supercycle">🚀 AI Supercycle: AGI Breakthrough & Autonomous Boom</option>
+            <option value="ai_capex_winter">❄️ AI ROI Disappointment & Capex Digestion</option>
+            <option value="taiwan_semiconductor_blockade">⚓ Taiwan Conflict: Strait Blockade & TSMC Halt</option>
+            <option value="mideast_hormuz_oil_shock">🛢️ Middle East War: Strait of Hormuz Closure ($135 Oil)</option>
+            <option value="ukraine_ceasefire_reconstruction">🕊️ Ukraine Peace Settlement & European Reconstruction</option>
+            <option value="deglobalization_tariff_war">🌐 Global Tariff War: Protectionism & Deglobalization</option>
+            <option value="baseline_soft_landing">⚖️ Baseline: Trend Growth & Gradual Easing</option>
+          </select>
+          <p id="scenario-desc" class="text-xs text-slate-400 italic mt-1">
+            Dynamic weighting calibrated directly from prediction markets across Taiwan, AI, Ukraine, and Middle East.
+          </p>
+        </div>
+
+        <!-- Stress Testing Sliders -->
+        <div class="space-y-4 pt-2 border-t border-slate-800/80">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center justify-between">
+            <span>Constituent Factor Shocks</span>
+            <button onclick="resetSliders()" class="text-blue-400 hover:underline lowercase font-normal">reset</button>
+          </div>
+
+          <!-- Taiwan Stress Slider -->
+          <div class="space-y-1">
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-300 flex items-center gap-1.5">
+                <i data-lucide="shield-alert" class="w-3.5 h-3.5 text-rose-400"></i> Taiwan Blockade Severity
+              </span>
+              <span class="mono font-bold text-rose-400" id="val-taiwan">Auto</span>
+            </div>
+            <input type="range" id="slider-taiwan" min="0" max="100" value="0" class="w-full accent-rose-500">
+          </div>
+
+          <!-- AI Productivity Slider -->
+          <div class="space-y-1">
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-300 flex items-center gap-1.5">
+                <i data-lucide="cpu" class="w-3.5 h-3.5 text-indigo-400"></i> AI Productivity Multiplier
+              </span>
+              <span class="mono font-bold text-indigo-400" id="val-ai">Auto</span>
+            </div>
+            <input type="range" id="slider-ai" min="-50" max="150" value="0" class="w-full accent-indigo-500">
+          </div>
+
+          <!-- Middle East Oil Shock Slider -->
+          <div class="space-y-1">
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-300 flex items-center gap-1.5">
+                <i data-lucide="flame" class="w-3.5 h-3.5 text-amber-400"></i> Middle East / Hormuz Disruption
+              </span>
+              <span class="mono font-bold text-amber-400" id="val-mideast">Auto</span>
+            </div>
+            <input type="range" id="slider-mideast" min="0" max="100" value="0" class="w-full accent-amber-500">
+          </div>
+
+          <!-- Ukraine Trajectory Slider -->
+          <div class="space-y-1">
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-300 flex items-center gap-1.5">
+                <i data-lucide="crosshair" class="w-3.5 h-3.5 text-cyan-400"></i> Ukraine Conflict (0=Peace, 100=Escalation)
+              </span>
+              <span class="mono font-bold text-cyan-400" id="val-ukraine">Auto</span>
+            </div>
+            <input type="range" id="slider-ukraine" min="0" max="100" value="50" class="w-full accent-cyan-500">
+          </div>
+
+          <!-- Monte Carlo Iterations -->
+          <div class="space-y-1">
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-300 flex items-center gap-1.5">
+                <i data-lucide="shuffle" class="w-3.5 h-3.5 text-slate-400"></i> Monte Carlo Paths
+              </span>
+              <span class="mono font-bold text-slate-300" id="val-runs">150</span>
+            </div>
+            <input type="range" id="slider-runs" min="50" max="350" step="50" value="150" class="w-full accent-blue-500">
+          </div>
+        </div>
+
+        <!-- Execution Action Button -->
+        <button id="btn-simulate" onclick="runSimulation()" class="w-full py-2.5 px-4 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-500 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold text-sm rounded-lg shadow-lg shadow-blue-600/30 transition flex items-center justify-center gap-2">
+          <i data-lucide="play" class="w-4 h-4 fill-white"></i> Re-Calculate 5-Year Dynamics
+        </button>
+      </div>
+
+      <!-- Right Main Panel: 5-Year Multi-Asset Fan Chart & Factor Attribution (8 cols) -->
+      <div class="lg:col-span-8 space-y-6">
+
+        <!-- 5-Year Dynamics Fan Chart Card -->
+        <div class="bg-surface-900 border border-slate-800 rounded-xl p-5 shadow-lg shadow-black/40">
+          <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+            <div>
+              <h2 class="font-bold text-base text-white flex items-center gap-2">
+                <i data-lucide="trending-up" class="w-4 h-4 text-emerald-400"></i>
+                5-Year Index Trajectory (2026-10 to 2031-10)
+              </h2>
+              <p class="text-xs text-slate-400 mt-0.5">Stochastic quantiles aggregated from bottom-up constituent financial shocks</p>
+            </div>
+            
+            <!-- Chart View Mode Tabs -->
+            <div class="flex items-center bg-surface-850 p-1 rounded-lg border border-slate-800 text-xs">
+              <button onclick="setChartMode('compare')" id="btn-mode-compare" class="px-3 py-1 rounded bg-blue-600 text-white font-medium">Compare 4 Indices</button>
+              <button onclick="setChartMode('envelope')" id="btn-mode-envelope" class="px-3 py-1 rounded text-slate-400 hover:text-white font-medium">SPX Confidence Envelope (P10-P90)</button>
+            </div>
+          </div>
+
+          <!-- Canvas Container -->
+          <div class="relative h-[340px] w-full">
+            <canvas id="projectionChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Attribution & Decomposition Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Factor Waterfall Decomposition -->
+          <div class="bg-surface-900 border border-slate-800 rounded-xl p-4">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300 mb-3 flex items-center gap-2">
+              <i data-lucide="bar-chart-3" class="w-4 h-4 text-indigo-400"></i>
+              Annualized Factor Attribution (SPX vs NDX)
+            </h3>
+            <div class="relative h-[190px]">
+              <canvas id="attributionChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Active Scenario Probability Distribution -->
+          <div class="bg-surface-900 border border-slate-800 rounded-xl p-4">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300 mb-3 flex items-center gap-2">
+              <i data-lucide="pie-chart" class="w-4 h-4 text-amber-400"></i>
+              Ensemble Scenario Weighting
+            </h3>
+            <div class="space-y-2 text-xs mono" id="scenario-weights-list">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Real-Time Prediction Markets ("Gambling" Odds) & Geopolitical Intel Stream -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- Prediction Markets (Polymarket / Kalshi) -->
+      <div class="lg:col-span-6 bg-surface-900 border border-slate-800 rounded-xl p-5 space-y-4">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+          <div class="flex items-center gap-2">
+            <i data-lucide="sparkles" class="w-4 h-4 text-fuchsia-400"></i>
+            <h3 class="font-bold text-sm text-white uppercase tracking-wider">Prediction Markets ('Gambling' / Odds Feeds)</h3>
+          </div>
+          <span class="text-xs px-2 py-0.5 rounded bg-fuchsia-500/10 text-fuchsia-400 border border-fuchsia-500/20 mono">Polymarket • Kalshi</span>
+        </div>
+        <div class="space-y-2.5 max-h-[300px] overflow-y-auto pr-1" id="prediction-markets-list">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <!-- Qualitative Intelligence & Geopolitical Flashpoints -->
+      <div class="lg:col-span-6 bg-surface-900 border border-slate-800 rounded-xl p-5 space-y-4">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+          <div class="flex items-center gap-2">
+            <i data-lucide="radio" class="w-4 h-4 text-rose-400"></i>
+            <h3 class="font-bold text-sm text-white uppercase tracking-wider">Qualitative Intelligence & Event Stream</h3>
+          </div>
+          <span class="text-xs px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 mono">GPR Telemetry</span>
+        </div>
+        <div class="space-y-2.5 max-h-[300px] overflow-y-auto pr-1" id="news-intel-list">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Bottom-Up Constituent Dislocation Matrix -->
+    <div class="bg-surface-900 border border-slate-800 rounded-xl p-5 space-y-4 shadow-lg shadow-black/40">
+      <div class="flex flex-wrap items-center justify-between gap-4 pb-3 border-b border-slate-800">
+        <div>
+          <h2 class="font-bold text-base text-white flex items-center gap-2">
+            <i data-lucide="layers" class="w-4 h-4 text-blue-400"></i>
+            Constituent Dislocation Matrix (Individual Component Dynamics)
+          </h2>
+          <p class="text-xs text-slate-400 mt-0.5">Bottom-up fundamental sensitivities across US Tech, European Defense, Chip Capital & Energy</p>
+        </div>
+
+        <!-- Filter Controls -->
+        <div class="flex items-center gap-3">
+          <input type="text" id="filter-search" oninput="filterConstituents()" placeholder="Search ticker or name..." class="bg-surface-850 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+          <select id="filter-sector" onchange="filterConstituents()" class="bg-surface-850 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500">
+            <option value="ALL">All Sectors</option>
+            <option value="Information Technology">Information Technology</option>
+            <option value="Industrials">Industrials / Defense</option>
+            <option value="Energy">Energy & Commodities</option>
+            <option value="Consumer Discretionary">Consumer Discretionary</option>
+            <option value="Healthcare">Healthcare & Pharma</option>
+            <option value="Financials">Financials & Banks</option>
+            <option value="Utilities">Utilities & Power</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Constituents Table -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead>
+            <tr class="text-slate-400 border-b border-slate-800 mono uppercase tracking-wider">
+              <th class="py-2.5 px-3">Symbol</th>
+              <th class="py-2.5 px-3">Company Name</th>
+              <th class="py-2.5 px-3">Sector</th>
+              <th class="py-2.5 px-3 text-right">Taiwan Dep.</th>
+              <th class="py-2.5 px-3 text-right">AI Score</th>
+              <th class="py-2.5 px-3 text-right">Energy Sens.</th>
+              <th class="py-2.5 px-3 text-right">Starting Px</th>
+              <th class="py-2.5 px-3 text-right">5Y Target Px</th>
+              <th class="py-2.5 px-3 text-right font-bold">5Y Return</th>
+              <th class="py-2.5 px-3">Primary Geopolitical Catalyst</th>
+            </tr>
+          </thead>
+          <tbody id="constituents-table-body" class="divide-y divide-slate-800/60 mono">
+            <!-- Populated dynamically -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800 bg-surface-900/60 py-4 px-6 text-center text-xs text-slate-500 mono">
+    TITAN OMNIMACRO • Institutional Geopolitical Simulation & Prediction Engine • Active Base Year: 2026
+  </footer>
+
+  <!-- Application Logic & Scripts -->
+  <script>
+    let currentSimulation = null;
+    let allConstituentsList = [];
+    let projectionChartInstance = null;
+    let attributionChartInstance = null;
+    let chartViewMode = 'compare'; // 'compare' or 'envelope'
+
+    // Initialize on load
+    window.addEventListener('DOMContentLoaded', async () => {
+      lucide.createIcons();
+      setupSliderListeners();
+      await fetchPredictionMarkets();
+      await fetchNewsIntel();
+      await fetchConstituents();
+      await runSimulation();
+    });
+
+    function setupSliderListeners() {
+      const sliders = [
+        { id: 'slider-taiwan', valId: 'val-taiwan', suffix: '%' },
+        { id: 'slider-ai', valId: 'val-ai', suffix: '%' },
+        { id: 'slider-mideast', valId: 'val-mideast', suffix: '%' },
+        { id: 'slider-ukraine', valId: 'val-ukraine', suffix: '%' },
+        { id: 'slider-runs', valId: 'val-runs', suffix: '' }
+      ];
+
+      sliders.forEach(s => {
+        const el = document.getElementById(s.id);
+        const vEl = document.getElementById(s.valId);
+        el.addEventListener('input', () => {
+          vEl.textContent = el.value + s.suffix;
+        });
+      });
+
+      document.getElementById('scenario-selector').addEventListener('change', (e) => {
+        const descriptions = {
+          composite_polymarket: "Dynamic weighting calibrated directly from prediction markets across Taiwan, AI, Ukraine, and Middle East.",
+          ai_hyper_supercycle: "Frontier models reach AGI benchmarks. Enterprise software margins jump +350bps; utility grid & nuclear power capex boom.",
+          ai_capex_winter: "Cloud capex fails to yield monetizable ROI. Semiconductor orders canceled; tech valuation multiples de-rate sharply.",
+          taiwan_semiconductor_blockade: "Naval quarantine/blockade halts 75% of global advanced wafer shipments. Massive semiconductor shock; defense surge.",
+          mideast_hormuz_oil_shock: "Strait of Hormuz closed in regional war. Brent spikes to $135/bbl; stagflation hits Western economies; energy supermajors surge.",
+          ukraine_ceasefire_reconstruction: "Formal armistice agreement. €450B reconstruction fund launched; European energy normalizes; heavy industrials rally.",
+          deglobalization_tariff_war: "US enacts universal 20% tariffs with global reciprocal duties. Multinational margins squeezed; domestic reshoring gains.",
+          baseline_soft_landing: "Orderly trend growth (2.0% US, 1.2% EU). Steady AI diffusion and gradual monetary policy normalization."
+        };
+        document.getElementById('scenario-desc').textContent = descriptions[e.target.value] || "";
+      });
+    }
+
+    function resetSliders() {
+      document.getElementById('slider-taiwan').value = 0;
+      document.getElementById('val-taiwan').textContent = "Auto";
+      document.getElementById('slider-ai').value = 0;
+      document.getElementById('val-ai').textContent = "Auto";
+      document.getElementById('slider-mideast').value = 0;
+      document.getElementById('val-mideast').textContent = "Auto";
+      document.getElementById('slider-ukraine').value = 50;
+      document.getElementById('val-ukraine').textContent = "Auto";
+      document.getElementById('slider-runs').value = 150;
+      document.getElementById('val-runs').textContent = "150";
+    }
+
+    async function fetchPredictionMarkets() {
+      try {
+        const res = await fetch('/api/prediction-markets');
+        const data = await res.json();
+        const container = document.getElementById('prediction-markets-list');
+        container.innerHTML = '';
+
+        data.forEach(m => {
+          const pct = (m.implied_probability * 100).toFixed(1);
+          const barColor = m.implied_probability > 0.4 ? 'bg-fuchsia-500' : (m.implied_probability > 0.2 ? 'bg-amber-500' : 'bg-slate-600');
+          const card = document.createElement('div');
+          card.className = "bg-surface-850 p-3 rounded-lg border border-slate-800 flex items-center justify-between gap-3 text-xs";
+          card.innerHTML = `
+            <div class="space-y-1 flex-1">
+              <div class="flex items-center gap-2">
+                <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-300 mono">${m.source}</span>
+                <span class="text-slate-400 text-[10px] mono">${m.category}</span>
+              </div>
+              <p class="font-medium text-slate-200 line-clamp-1">${m.title}</p>
+            </div>
+            <div class="text-right mono space-y-1 w-24">
+              <div class="font-bold text-sm text-fuchsia-400">${pct}%</div>
+              <div class="w-full bg-slate-800 h-1 rounded-full overflow-hidden">
+                <div class="${barColor} h-full" style="width: ${pct}%"></div>
+              </div>
+              <div class="text-[10px] text-slate-500">$${(m.volume_usd / 1e6).toFixed(1)}M vol</div>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+      } catch (err) {
+        console.error("Failed to fetch prediction markets:", err);
+      }
+    }
+
+    async function fetchNewsIntel() {
+      try {
+        const res = await fetch('/api/news-intel');
+        const data = await res.json();
+        const container = document.getElementById('news-intel-list');
+        container.innerHTML = '';
+
+        data.forEach(s => {
+          const sentColor = s.sentiment_score > 0 ? 'text-emerald-400' : 'text-rose-400';
+          const card = document.createElement('div');
+          card.className = "bg-surface-850 p-3 rounded-lg border border-slate-800 space-y-1.5 text-xs";
+          card.innerHTML = `
+            <div class="flex items-center justify-between">
+              <span class="text-blue-400 font-semibold mono text-[11px]">${s.source}</span>
+              <div class="flex items-center gap-2 mono text-[10px]">
+                <span class="text-rose-400 font-bold">GPR: ${s.geopolitical_risk_score}</span>
+                <span class="${sentColor} font-bold">${s.sentiment_score > 0 ? '+' : ''}${s.sentiment_score.toFixed(2)}</span>
+              </div>
+            </div>
+            <p class="text-slate-200 font-normal">${s.headline}</p>
+            <div class="flex flex-wrap gap-1 pt-1">
+              ${s.affected_sectors.map(sec => `<span class="px-1.5 py-0.2 rounded text-[10px] bg-slate-800 text-slate-400">${sec}</span>`).join('')}
+            </div>
+          `;
+          container.appendChild(card);
+        });
+      } catch (err) {
+        console.error("Failed to fetch news intel:", err);
+      }
+    }
+
+    async function fetchConstituents() {
+      try {
+        const res = await fetch('/api/constituents');
+        allConstituentsList = await res.json();
+      } catch (err) {
+        console.error("Failed to fetch constituents:", err);
+      }
+    }
+
+    async function runSimulation() {
+      const btn = document.getElementById('btn-simulate');
+      btn.innerHTML = `<span class="animate-spin mr-2">⠋</span> Simulating 60-Month Paths...`;
+      btn.disabled = true;
+
+      const scenarioId = document.getElementById('scenario-selector').value;
+      const runs = parseInt(document.getElementById('slider-runs').value);
+      
+      const taiwanVal = document.getElementById('slider-taiwan').value;
+      const aiVal = document.getElementById('slider-ai').value;
+      const mideastVal = document.getElementById('slider-mideast').value;
+      const ukraineVal = document.getElementById('slider-ukraine').value;
+
+      const payload = {
+        horizon_months: 60,
+        num_monte_carlo_runs: runs,
+        selected_scenario_id: scenarioId,
+        stress_taiwan_override: taiwanVal > 0 ? (taiwanVal / 100.0) : null,
+        stress_ai_override: aiVal != 0 ? (aiVal / 100.0) : null,
+        stress_middle_east_override: mideastVal > 0 ? (mideastVal / 100.0) : null,
+        stress_ukraine_override: ukraineVal != 50 ? (ukraineVal / 100.0) : null
+      };
+
+      try {
+        const res = await fetch('/api/simulate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        currentSimulation = await res.json();
+        updateUI();
+      } catch (err) {
+        console.error("Simulation execution error:", err);
+      } finally {
+        btn.innerHTML = `<i data-lucide="play" class="w-4 h-4 fill-white"></i> Re-Calculate 5-Year Dynamics`;
+        btn.disabled = false;
+        lucide.createIcons();
+      }
+    }
+
+    function updateUI() {
+      if (!currentSimulation) return;
+
+      // 1. Update KPI Cards
+      const indices = currentSimulation.indices;
+      if (indices.SPX) {
+        document.getElementById('kpi-spx-target').textContent = indices.SPX.final_p50_level.toLocaleString();
+        document.getElementById('kpi-spx-ret').textContent = (indices.SPX.total_return_5y_pct > 0 ? '+' : '') + indices.SPX.total_return_5y_pct.toFixed(1) + '%';
+        document.getElementById('kpi-spx-cagr').textContent = '+' + indices.SPX.cagr_5y_pct.toFixed(1) + '%';
+        document.getElementById('kpi-spx-dd').textContent = '-' + indices.SPX.max_drawdown_pct.toFixed(1) + '%';
+      }
+      if (indices.NDX) {
+        document.getElementById('kpi-ndx-target').textContent = indices.NDX.final_p50_level.toLocaleString();
+        document.getElementById('kpi-ndx-ret').textContent = (indices.NDX.total_return_5y_pct > 0 ? '+' : '') + indices.NDX.total_return_5y_pct.toFixed(1) + '%';
+        document.getElementById('kpi-ndx-cagr').textContent = '+' + indices.NDX.cagr_5y_pct.toFixed(1) + '%';
+        document.getElementById('kpi-ndx-dd').textContent = '-' + indices.NDX.max_drawdown_pct.toFixed(1) + '%';
+      }
+      if (indices.MSCIWORLD) {
+        document.getElementById('kpi-msci-target').textContent = indices.MSCIWORLD.final_p50_level.toLocaleString();
+        document.getElementById('kpi-msci-ret').textContent = (indices.MSCIWORLD.total_return_5y_pct > 0 ? '+' : '') + indices.MSCIWORLD.total_return_5y_pct.toFixed(1) + '%';
+        document.getElementById('kpi-msci-cagr').textContent = '+' + indices.MSCIWORLD.cagr_5y_pct.toFixed(1) + '%';
+        document.getElementById('kpi-msci-dd').textContent = '-' + indices.MSCIWORLD.max_drawdown_pct.toFixed(1) + '%';
+      }
+      if (indices.STOXX600) {
+        document.getElementById('kpi-stoxx-target').textContent = indices.STOXX600.final_p50_level.toLocaleString();
+        document.getElementById('kpi-stoxx-ret').textContent = (indices.STOXX600.total_return_5y_pct > 0 ? '+' : '') + indices.STOXX600.total_return_5y_pct.toFixed(1) + '%';
+        document.getElementById('kpi-stoxx-cagr').textContent = '+' + indices.STOXX600.cagr_5y_pct.toFixed(1) + '%';
+        document.getElementById('kpi-stoxx-dd').textContent = '-' + indices.STOXX600.max_drawdown_pct.toFixed(1) + '%';
+      }
+
+      // 2. Render Charts
+      renderProjectionChart();
+      renderAttributionChart();
+      renderScenarioWeights();
+
+      // 3. Render Constituents Table
+      filterConstituents();
+    }
+
+    function setChartMode(mode) {
+      chartViewMode = mode;
+      document.getElementById('btn-mode-compare').className = mode === 'compare' ? 'px-3 py-1 rounded bg-blue-600 text-white font-medium' : 'px-3 py-1 rounded text-slate-400 hover:text-white font-medium';
+      document.getElementById('btn-mode-envelope').className = mode === 'envelope' ? 'px-3 py-1 rounded bg-blue-600 text-white font-medium' : 'px-3 py-1 rounded text-slate-400 hover:text-white font-medium';
+      renderProjectionChart();
+    }
+
+    function renderProjectionChart() {
+      if (!currentSimulation) return;
+      const ctx = document.getElementById('projectionChart').getContext('2d');
+      if (projectionChartInstance) projectionChartInstance.destroy();
+
+      const spx = currentSimulation.indices.SPX;
+      const ndx = currentSimulation.indices.NDX;
+      const msci = currentSimulation.indices.MSCIWORLD;
+      const stoxx = currentSimulation.indices.STOXX600;
+
+      const labels = spx.monthly_path.map(p => p.date);
+
+      let datasets = [];
+
+      if (chartViewMode === 'compare') {
+        // Normalize starting levels to 100 for clean apples-to-apples comparison
+        const normPath = (traj) => traj.monthly_path.map(p => ((p.p50 / traj.base_level) * 100).toFixed(1));
+
+        datasets = [
+          {
+            label: 'S&P 500 (SPX)',
+            data: normPath(spx),
+            borderColor: '#3b82f6',
+            backgroundColor: 'transparent',
+            borderWidth: 2.5,
+            tension: 0.2
+          },
+          {
+            label: 'Nasdaq 100 (NDX)',
+            data: normPath(ndx),
+            borderColor: '#818cf8',
+            backgroundColor: 'transparent',
+            borderWidth: 2.5,
+            tension: 0.2
+          },
+          {
+            label: 'MSCI World (URTH)',
+            data: normPath(msci),
+            borderColor: '#06b6d4',
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            tension: 0.2
+          },
+          {
+            label: 'STOXX Europe 600',
+            data: normPath(stoxx),
+            borderColor: '#f59e0b',
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            tension: 0.2
+          }
+        ];
+      } else {
+        // SPX Quantiles Envelope
+        datasets = [
+          {
+            label: 'Bull Case (P90)',
+            data: spx.monthly_path.map(p => p.p90),
+            borderColor: 'rgba(52, 211, 153, 0.6)',
+            borderDash: [5, 5],
+            fill: false,
+            tension: 0.2
+          },
+          {
+            label: 'Median Projection (P50)',
+            data: spx.monthly_path.map(p => p.p50),
+            borderColor: '#3b82f6',
+            backgroundColor: 'rgba(59, 130, 246, 0.15)',
+            fill: '-1',
+            borderWidth: 3,
+            tension: 0.2
+          },
+          {
+            label: 'Bear / Stress Case (P10)',
+            data: spx.monthly_path.map(p => p.p10),
+            borderColor: 'rgba(244, 63, 94, 0.6)',
+            borderDash: [5, 5],
+            fill: '+1',
+            tension: 0.2
+          }
+        ];
+      }
+
+      projectionChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: { labels, datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: {
+              labels: { color: '#94a3b8', font: { family: 'Plus Jakarta Sans', size: 11 } }
+            },
+            tooltip: {
+              backgroundColor: '#0f172a',
+              titleColor: '#e2e8f0',
+              bodyColor: '#cbd5e1',
+              borderColor: '#334155',
+              borderWidth: 1
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(51, 65, 85, 0.3)' },
+              ticks: { color: '#64748b', font: { family: 'JetBrains Mono', size: 10 }, maxTicksLimit: 12 }
+            },
+            y: {
+              grid: { color: 'rgba(51, 65, 85, 0.3)' },
+              ticks: { color: '#64748b', font: { family: 'JetBrains Mono', size: 10 } }
+            }
+          }
+        }
+      });
+    }
+
+    function renderAttributionChart() {
+      if (!currentSimulation) return;
+      const ctx = document.getElementById('attributionChart').getContext('2d');
+      if (attributionChartInstance) attributionChartInstance.destroy();
+
+      const attrSPX = currentSimulation.factor_attribution.SPX || {};
+      const attrNDX = currentSimulation.factor_attribution.NDX || {};
+
+      const labels = [
+        'AI Productivity',
+        'Taiwan Disruption',
+        'Defense Surge',
+        'Energy/Oil Drag',
+        'Rates/Discount',
+        'Base Growth'
+      ];
+
+      const spxData = [
+        attrSPX.AI_Productivity_Boost || 0,
+        attrSPX.Taiwan_Geopolitical_Drag || 0,
+        attrSPX.Defense_Rearmament_Impulse || 0,
+        attrSPX.Energy_Inflation_Drag || 0,
+        attrSPX.Discount_Rate_Multiple_Shift || 0,
+        attrSPX.Baseline_Earnings_Growth || 0
+      ];
+
+      const ndxData = [
+        attrNDX.AI_Productivity_Boost || 0,
+        attrNDX.Taiwan_Geopolitical_Drag || 0,
+        attrNDX.Defense_Rearmament_Impulse || 0,
+        attrNDX.Energy_Inflation_Drag || 0,
+        attrNDX.Discount_Rate_Multiple_Shift || 0,
+        attrNDX.Baseline_Earnings_Growth || 0
+      ];
+
+      attributionChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            { label: 'SPX', data: spxData, backgroundColor: 'rgba(59, 130, 246, 0.85)' },
+            { label: 'NDX', data: ndxData, backgroundColor: 'rgba(129, 140, 248, 0.85)' }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: { color: '#94a3b8', font: { size: 10 } } }
+          },
+          scales: {
+            x: { ticks: { color: '#64748b', font: { size: 9 } } },
+            y: { ticks: { color: '#64748b', font: { size: 9 } } }
+          }
+        }
+      });
+    }
+
+    function renderScenarioWeights() {
+      if (!currentSimulation) return;
+      const container = document.getElementById('scenario-weights-list');
+      container.innerHTML = '';
+      const weights = currentSimulation.prediction_market_weights;
+
+      for (const [sc, w] of Object.entries(weights)) {
+        const pct = (w * 100).toFixed(1);
+        const div = document.createElement('div');
+        div.className = "flex items-center justify-between";
+        div.innerHTML = `
+          <span class="text-slate-400 capitalize">${sc.replace(/_/g, ' ')}:</span>
+          <div class="flex items-center gap-2">
+            <div class="w-16 bg-slate-800 h-1.5 rounded-full overflow-hidden">
+              <div class="bg-amber-400 h-full" style="width: ${pct}%"></div>
+            </div>
+            <span class="text-amber-400 font-bold w-12 text-right">${pct}%</span>
+          </div>
+        `;
+        container.appendChild(div);
+      }
+    }
+
+    function filterConstituents() {
+      if (!currentSimulation) return;
+      const query = document.getElementById('filter-search').value.toLowerCase();
+      const sector = document.getElementById('filter-sector').value;
+      const tbody = document.getElementById('constituents-table-body');
+      tbody.innerHTML = '';
+
+      const winnersAndLosers = [...currentSimulation.top_winners, ...currentSimulation.top_losers];
+      const allImpacts = winnersAndLosers.filter((item, idx, self) => 
+        idx === self.findIndex((t) => t.symbol === item.symbol)
+      );
+
+      // Merge with base constituent attributes
+      const merged = allImpacts.map(imp => {
+        const base = allConstituentsList.find(c => c.symbol === imp.symbol) || {};
+        return { ...base, ...imp };
+      });
+
+      const filtered = merged.filter(c => {
+        const matchesQuery = (c.symbol && c.symbol.toLowerCase().includes(query)) || 
+                             (c.name && c.name.toLowerCase().includes(query));
+        const matchesSector = (sector === 'ALL' || c.sector === sector);
+        return matchesQuery && matchesSector;
+      });
+
+      filtered.forEach(c => {
+        const ret = c.total_return_5y_pct;
+        const retColor = ret >= 0 ? 'text-emerald-400' : 'text-rose-400';
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-surface-850/60 transition";
+        tr.innerHTML = `
+          <td class="py-2.5 px-3 font-bold text-white">${c.symbol}</td>
+          <td class="py-2.5 px-3 text-slate-300 font-sans">${c.name}</td>
+          <td class="py-2.5 px-3 text-slate-400 font-sans">${c.sector}</td>
+          <td class="py-2.5 px-3 text-right ${c.taiwan_semiconductor_dependency > 0.6 ? 'text-rose-400 font-bold' : 'text-slate-400'}">${((c.taiwan_semiconductor_dependency || 0) * 100).toFixed(0)}%</td>
+          <td class="py-2.5 px-3 text-right ${c.ai_exposure_score > 0.7 ? 'text-indigo-400 font-bold' : 'text-slate-400'}">${((c.ai_exposure_score || 0) * 100).toFixed(0)}%</td>
+          <td class="py-2.5 px-3 text-right ${c.energy_cost_elasticity > 0.5 ? 'text-amber-400 font-bold' : 'text-slate-400'}">${((c.energy_cost_elasticity || 0) * 100).toFixed(0)}%</td>
+          <td class="py-2.5 px-3 text-right text-slate-400">$${(c.starting_price || 0).toFixed(1)}</td>
+          <td class="py-2.5 px-3 text-right text-slate-200">$${(c.projected_price_5y || 0).toFixed(1)}</td>
+          <td class="py-2.5 px-3 text-right font-bold ${retColor}">${ret > 0 ? '+' : ''}${ret.toFixed(1)}%</td>
+          <td class="py-2.5 px-3 text-amber-300 font-sans text-[11px]">${c.primary_driver || 'Market Beta'}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+  </script>
+</body>
+</html>
